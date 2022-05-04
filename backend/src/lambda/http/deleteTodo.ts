@@ -8,6 +8,7 @@ import { getTodo, deleteTodo } from '../../businessLogic/todos'
 import { createLogger } from '../../utils/logger'
 
 import { getUserId } from '../utils'
+import { publishToSns } from '../../helpers/snsUtils'
 
 const logger = createLogger('deleteTodo')
 
@@ -32,6 +33,10 @@ export const handler = middy(
 
     await deleteTodo(userId, todoId)
   
+    publishToSns(JSON.stringify({ 
+      msg: "deleted todo", item
+    }));
+
     return {
       statusCode: 200,
       body: ''

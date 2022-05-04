@@ -7,6 +7,7 @@ import { createLogger } from '../../utils/logger'
 import { getTodo, updateTodo } from '../../businessLogic/todos'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { getUserId } from '../utils'
+import { publishToSns } from '../../helpers/snsUtils'
 
 const logger = createLogger('updateTodo')
 
@@ -31,6 +32,10 @@ export const handler = middy(
   
     const items = await updateTodo(updatedTodo, userId, todoId)
     
+    publishToSns(JSON.stringify({ 
+      msg: "updated todo", updatedTodo
+    })); 
+
     return {
       statusCode: 200,
       body: JSON.stringify(items)

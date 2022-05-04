@@ -6,6 +6,7 @@ import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 import { getUserId } from '../utils';
 import { createTodo } from '../../businessLogic/todos'
 import { createLogger } from '../../utils/logger'
+import { publishToSns } from '../../helpers/snsUtils'
 
 const logger = createLogger('createTodo')
 
@@ -19,6 +20,10 @@ export const handler = middy(
     const userId = getUserId(event)
     const item = await createTodo(newTodo, userId)
   
+    publishToSns(JSON.stringify({ 
+      msg: "created todo", item
+    }));
+
     return {
       statusCode: 201,
       body: JSON.stringify({
