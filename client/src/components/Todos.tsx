@@ -14,7 +14,7 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
+import { createTodo, deleteTodo, getTodos, patchTodo, setupEmailSubscribe } from '../api/todos-api'
 import Auth from '../auth/Auth'
 import { Todo } from '../types/Todo'
 
@@ -27,17 +27,23 @@ interface TodosState {
   todos: Todo[]
   newTodoName: string
   loadingTodos: boolean
+  emailaddr: string
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
-    loadingTodos: true
+    loadingTodos: true,
+    emailaddr: ''
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newTodoName: event.target.value })
+  }
+
+  handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ emailaddr: event.target.value })
   }
 
   onEditButtonClick = (todoId: string) => {
@@ -57,6 +63,24 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       })
     } catch {
       alert('Todo creation failed')
+    }
+  }
+
+  onEmailGenerate = async  (event: React.ChangeEvent<HTMLButtonElement>) => {
+    console.log("onEmailGenerate")
+    try {
+      await setupEmailSubscribe(
+        this.props.auth.getIdToken(), 
+        this.state.emailaddr
+      )
+
+    } catch(err) {
+      alert('Email subscription failed')
+      let errorMessage = ''
+      if (err instanceof Error) {
+        errorMessage = err.message
+      }
+      console.log(errorMessage)
     }
   }
 
@@ -110,12 +134,38 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   render() {
     return (
       <div>
+        {this.renderCreateEmailInput()}
         <Header as="h1">TODOs</Header>
 
         {this.renderCreateTodoInput()}
 
         {this.renderTodos()}
       </div>
+    )
+  }
+
+  renderCreateEmailInput() {
+    return (
+      <Grid.Row>
+        <Grid.Column width={16}>
+          <Input
+            action={{
+              color: 'olive',
+              labelPosition: 'left',
+              icon: 'add',
+              content: 'Email notifications:',
+              onClick: this.onEmailGenerate
+            }}
+            fluid
+            actionPosition="left"
+            placeholder="Receive notifications..."
+            onChange={this.handleEmailChange}
+          />
+        </Grid.Column>
+        <Grid.Column width={16}>
+          <Divider />
+        </Grid.Column>
+      </Grid.Row>
     )
   }
 

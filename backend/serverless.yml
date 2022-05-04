@@ -138,6 +138,20 @@ functions:
           - SNS:Publish
         Resource: !Ref SuperTopic
 
+  HandleSnsEmail:
+    handler: src/lambda/http/handleSnsEmail.handler
+    events:
+      - http:
+          method: post
+          path: email
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - SNS:Subscribe
+        Resource: !Ref SuperTopic
+
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
   GenerateUploadUrl:

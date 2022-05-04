@@ -30,6 +30,22 @@ export async function createTodo(
   return response.data.item
 }
 
+export async function setupEmailSubscribe(
+  idToken: string,
+  addr: string,
+): Promise<void> {
+  
+  console.log("setupEmailSubscribe", addr)
+  console.log("apiEndpoint:", apiEndpoint)
+
+  await Axios.post(`${apiEndpoint}/email`, JSON.stringify(addr), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+}
+
 export async function patchTodo(
   idToken: string,
   todoId: string,
