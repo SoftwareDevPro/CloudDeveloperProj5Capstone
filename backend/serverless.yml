@@ -25,8 +25,9 @@ provider:
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-c4-p4-cla-todo-images-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: serverless-p5-cla-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+    SNS_TOPIC_ARN: !Ref SuperTopic
 
   logs:
     # Enable API Gateway logs
@@ -87,6 +88,10 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - SNS:Publish
+        Resource: !Ref SuperTopic
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
@@ -107,6 +112,10 @@ functions:
           - dynamodb:UpdateItem
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - SNS:Publish
+        Resource: !Ref SuperTopic
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
@@ -124,6 +133,10 @@ functions:
           - dynamodb:DeleteItem
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - SNS:Publish
+        Resource: !Ref SuperTopic
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
@@ -213,3 +226,9 @@ resources:
               Action: 's3:GetObject'
               Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
+    
+    # https://www.serverless.com/framework/docs/providers/aws/events/sns/
+    SuperTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: serverless-todo-topic
