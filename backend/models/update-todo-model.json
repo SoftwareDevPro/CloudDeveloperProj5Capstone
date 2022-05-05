@@ -11,12 +11,16 @@
     },
     "done": {
       "type": "boolean"
+    },
+    "publicTodo": {
+      "type": "boolean"
     }
   },
   "required": [
     "name",
     "dueDate",
-    "done"
+    "done",
+    "publicTodo"
   ],
   "additionalProperties": false
 }

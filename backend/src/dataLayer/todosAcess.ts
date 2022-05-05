@@ -62,7 +62,7 @@ export class TodoAccess {
   }
 
   async updateTodo(update: TodoUpdate, todoId: string, userId: string): Promise<TodoUpdate> {
-      logger.info("updateTodo", { userId: userId, todoId: todoId, done: update.done });
+      logger.info("updateTodo", { userId: userId, todoId: todoId, done: update.done, ispublic: update.publicTodo });
 
       await this.docClient.update({
           TableName: this.table,
@@ -71,11 +71,12 @@ export class TodoAccess {
             userId: userId 
           },
           ExpressionAttributeNames: {"#todo_name": "name"},
-          UpdateExpression: "set #todo_name = :name, dueDate = :dueDate, done = :done",
+          UpdateExpression: "set #todo_name = :name, dueDate = :dueDate, done = :done, publicTodo = :publicTodo",
           ExpressionAttributeValues: {
               ":name": update.name,
               ":dueDate": update.dueDate,
               ":done": update.done,
+              ":publicTodo": update.publicTodo
           },
           ReturnValues: "UPDATED_NEW"
       }).promise()

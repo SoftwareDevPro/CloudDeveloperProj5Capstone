@@ -25,6 +25,7 @@ export async function createTodo(req: CreateTodoRequest, userId: string): Promis
         name: req.name,
         dueDate: req.dueDate,
         done: false,
+        publicTodo: false
     })
 }
 
@@ -35,12 +36,13 @@ export async function deleteTodo(userId: string, todoId: string) {
 }
 
 export async function updateTodo(req: UpdateTodoRequest, userId: string, todoId: string): Promise<TodoUpdate> {
-    logger.info("updateTodo", { userId: userId, todoId: todoId, name: req.name, duedate: req.dueDate, done: req.done });
+    logger.info("updateTodo", { userId: userId, todoId: todoId, name: req.name, duedate: req.dueDate, done: req.done, ispublic: req.publicTodo });
     
     return await todoAccess.updateTodo({
         name: req.name,
         dueDate: req.dueDate,
-        done: req.done
+        done: req.done,
+        publicTodo: req.publicTodo
     }, todoId, userId)
 }
 
