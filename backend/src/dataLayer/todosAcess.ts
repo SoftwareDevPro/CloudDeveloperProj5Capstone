@@ -51,8 +51,26 @@ export class TodoAccess {
       const result = await this.docClient.query({
         TableName: this.table,
         KeyConditionExpression: 'userId = :userId',
+        FilterExpression: 'publicTodo = :publicTodo',
         ExpressionAttributeValues: {
-            ':userId': userId
+            ':userId': userId,
+            ':publicTodo': false
+        }
+      }).promise()
+        
+      const items = result.Items
+  
+      return items as TodoItem[]
+  }
+
+  async getAllPublicTodos(userId: string): Promise<TodoItem[]> {
+      logger.info("getAllPublicTodos", { userId: userId  });
+  
+      const result = await this.docClient.scan({
+        TableName: this.table,
+        FilterExpression: 'publicTodo = :publicTodo',
+        ExpressionAttributeValues: {
+            ':publicTodo': true
         }
       }).promise()
         

@@ -67,3 +67,9 @@ export async function getTodosForUser(userId: string): Promise<TodoItem[]> {
 
     return todoAccess.getTodosForUser(userId)
 }
+
+export async function getPublicTodos(userId: string): Promise<TodoItem[]> {
+    logger.info("getPublicTodos", { userId: userId });
+
+    return todoAccess.getAllPublicTodos(userId)
+}

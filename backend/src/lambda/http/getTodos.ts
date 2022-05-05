@@ -4,8 +4,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 import { createLogger } from '../../utils/logger'
-
-import { getTodosForUser as getTodosForUser } from '../../businessLogic/todos'
+import { getTodosForUser as getTodosForUser, 
+         getPublicTodos as getPublicTodos } from '../../businessLogic/todos'
 import { getUserId } from '../utils';
 
 const logger = createLogger('getTodos')
@@ -18,7 +18,18 @@ export const handler = middy(
     logger.info("processing event", { event: event })
 
     const userId = getUserId(event)
-    const items = await getTodosForUser(userId)
+    const userItems = await getTodosForUser(userId)
+    const publicItems = await getPublicTodos(userId)
+
+    const items = [ ...userItems, ...publicItems ]
+    
+    logger.info("items:", JSON.stringify(items))
+    
+    logger.info("item counts:", 
+      { user_items: userItems.length, 
+        public_items: publicItems.length,
+        total_items: items.length
+      })
 
     return {
       statusCode: 200,
