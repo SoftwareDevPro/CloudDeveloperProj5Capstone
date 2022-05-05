@@ -99,11 +99,12 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     try {
       console.log("onTodoCheck", pos);
       const todo = this.state.todos[pos]
-      console.log("name", todo.name, "dueDate", todo.dueDate, "done", !todo.done)
+      console.log("name", todo.name, "dueDate", todo.dueDate, "done", !todo.done, "publicTodo", todo.publicTodo)
       await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
         name: todo.name,
         dueDate: todo.dueDate,
-        done: !todo.done
+        done: !todo.done,
+        publicTodo: todo.publicTodo
       })
       this.setState({
         todos: update(this.state.todos, {
@@ -111,7 +112,28 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         })
       })
     } catch {
-      alert('Todo deletion failed')
+      alert('Todo update (done) failed')
+    }
+  }
+
+  onPublicTodoCheck = async (pos: number) => {
+    try {
+      console.log("onPublicTodoCheck", pos);
+      const todo = this.state.todos[pos]
+      console.log("name", todo.name, "dueDate", todo.dueDate, "done", todo.done, "publicTodo", !todo.publicTodo)
+      await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
+        name: todo.name,
+        dueDate: todo.dueDate,
+        done: todo.done,
+        publicTodo: !todo.publicTodo
+      })
+      this.setState({
+        todos: update(this.state.todos, {
+          [pos]: { publicTodo: { $set: !todo.publicTodo } }
+        })
+      })
+    } catch {
+      alert('Todo update (publicTodo) failed')
     }
   }
 
@@ -224,10 +246,17 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                   checked={todo.done}
                 />
               </Grid.Column>
-              <Grid.Column width={10} verticalAlign="middle">
+              <Grid.Column width={2} verticalAlign="middle">
                 {todo.name}
               </Grid.Column>
-              <Grid.Column width={3} floated="right">
+              <Grid.Column width={2} verticalAlign="middle">
+                <Checkbox
+                  label="Public"
+                  onChange={() => this.onPublicTodoCheck(pos)}
+                  checked={todo.publicTodo}
+                />
+              </Grid.Column>
+              <Grid.Column width={3} verticalAlign="middle">
                 {todo.dueDate}
               </Grid.Column>
               <Grid.Column width={1} floated="right">
@@ -248,9 +277,11 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                   <Icon name="delete" />
                 </Button>
               </Grid.Column>
+              <Grid.Column width={16}>                
               {todo.attachmentUrl && (
                 <Image src={todo.attachmentUrl} size="small" wrapped />
               )}
+              </Grid.Column>
               <Grid.Column width={16}>
                 <Divider />
               </Grid.Column>
